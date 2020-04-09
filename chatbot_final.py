@@ -16,12 +16,12 @@ from nltk.stem import WordNetLemmatizer
 nltk.download('popular', quiet=True) # for downloading packages
 
 # uncomment the following only the first time
-#nltk.download('punkt') # first-time use only
-#nltk.download('wordnet') # first-time use only
+nltk.download('punkt') # first-time use only
+nltk.download('wordnet') # first-time use only
 
 
 #Reading in the corpus
-with open('chatbot.txt','r', encoding='utf8', errors ='ignore') as fin:
+with open('chatxt.txt','r', encoding='utf8', errors ='ignore') as fin:  #utf8 unicode encoding can be read normally as well.
     raw = fin.read().lower()
 
 #TOkenisation
@@ -29,18 +29,19 @@ sent_tokens = nltk.sent_tokenize(raw)# converts to list of sentences
 word_tokens = nltk.word_tokenize(raw)# converts to list of words
 
 # Preprocessing
-lemmer = WordNetLemmatizer()
+lem = WordNetLemmatizer() #Lemmetization is better than Stemming hence used
 def LemTokens(tokens):
-    return [lemmer.lemmatize(token) for token in tokens]
+    return [lem.lemmatize(token) for token in tokens]
 remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
 def LemNormalize(text):
     return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
 
 
 # Keyword Matching
-GREETING_INPUTS = ("hello", "hi", "greetings", "sup", "what's up","hey",)
-GREETING_RESPONSES = ["hi", "hey", "*nods*", "hi there", "hello", "I am glad! You are talking to me"]
+GREETING_INPUTS = ("hello", "hi", "greetings", "sup", "what's up","hey","yay","ssup")
+GREETING_RESPONSES = ["hi", "hey", "*nods*", "hi there", "hello", "I am glad! You are talking to me","Welcome here!"]
 
+#generating greeting
 def greeting(sentence):
     """If user's input is a greeting, return a greeting response"""
     for word in sentence.split():
@@ -52,11 +53,11 @@ def greeting(sentence):
 def response(user_response):
     robo_response=''
     sent_tokens.append(user_response)
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
-    tfidf = TfidfVec.fit_transform(sent_tokens)
-    vals = cosine_similarity(tfidf[-1], tfidf)
-    idx=vals.argsort()[0][-2]
-    flat = vals.flatten()
+    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english') #stop words removed automatically
+    tfidf = TfidfVec.fit_transform(sent_tokens) #TFIDF------> Term Frequency Inverse Document Frequency
+    val = cosine_similarity(tfidf[-1], tfidf)
+    idx=val.argsort()[0][-2]
+    flat = val.flatten()
     flat.sort()
     req_tfidf = flat[-2]
     if(req_tfidf==0):
@@ -68,7 +69,7 @@ def response(user_response):
 
 
 flag=True
-print("ROBO: My name is Robo. I will answer your queries about Chatbots. If you want to exit, type Bye!")
+print("ROBO: My name is ChatBox Robo. I will answer your queries about Chatbots. If you want to exit, type Bye!")
 while(flag==True):
     user_response = input()
     user_response=user_response.lower()
